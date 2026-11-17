@@ -11,6 +11,7 @@
 
 - `.dockerignore` — файл
 - `.env.example` — файл
+- `.gitattributes` — файл
 - `.github/`
 - `.gitignore` — файл
 - `.python-version` — файл
@@ -25,6 +26,7 @@
 - `alembic.ini` — файл
 - `app/`
 - `assets/`
+- `custom/`
 - `docker/`
 - `docker-compose.local.yml` — файл
 - `docker-compose.yml` — файл
@@ -2822,6 +2824,65 @@
 - `assets/bedolaga_app3.svg` — файл
 - `assets/logo2.svg` — файл
 
+## custom
+
+- `custom/__init__.py` — Python-модуль
+  Классы: нет
+  Функции: нет
+- `custom/bot_integration.py` — Python-модуль
+  Классы: нет
+  Функции: `setup_customization` — Инициализация модулей кастомизации и регистрация обработчиков., `try_handle_custom_start` — Обрабатывает команду /start с учетом кастомных сценариев и автоопределения языка., `try_handle_custom_notification` — Обрабатывает и отправляет кастомное уведомление, если для него настроен шаблон.
+- `custom/config.py` — Python-модуль
+  Классы: `MediaType`, `ButtonTargetType`, `StartScenario`, `ButtonConfig` (2 методов), `PageConfig` (2 методов), `NotificationConfig` (2 методов), `StartFlowMessage` (2 методов), `StartFlowConfig` (2 методов), `CustomizationConfig` (4 методов)
+  Функции: нет
+- `custom/handlers/`
+- `custom/services/`
+- `custom/web/`
+
+### custom/handlers
+
+- `custom/handlers/admin_customization.py` — Python-модуль
+  Классы: нет
+  Функции: `get_admin_customization_keyboard`, `show_admin_customization`, `cmd_admin_customization`, `toggle_admin_customization`, `sync_admin_customization`, `register_handlers`
+- `custom/handlers/custom_page_handler.py` — Python-модуль
+  Классы: нет
+  Функции: `build_custom_inline_keyboard` — Формирует InlineKeyboardMarkup из списка кнопок кастомизации., `send_custom_page_message` — Отправляет кастомную страницу пользователю с медиа и кнопками., `handle_custom_page_callback` — Обработчик перехода по страницам конструктора., `register_handlers`
+
+### custom/services
+
+- `custom/services/customization_service.py` — Python-модуль
+  Классы: `CustomizationService` (9 методов)
+  Функции: нет
+- `custom/services/emoji_service.py` — Python-модуль
+  Классы: `EmojiService` (2 методов)
+  Функции: нет
+- `custom/services/language_service.py` — Python-модуль
+  Классы: нет
+  Функции: `detect_user_language` — Определяет язык пользователя по его коду в Telegram., `auto_translate_text` — Автоматически переводит текст на целевые языки.
+- `custom/services/notification_service.py` — Python-модуль
+  Классы: нет
+  Функции: `format_custom_notification` — Форматирует кастомное уведомление, если для него настроен шаблон.
+- `custom/services/start_flow_service.py` — Python-модуль
+  Классы: нет
+  Функции: `get_custom_start_messages` — Возвращает список сообщений для отправки при команде /start.
+
+### custom/web
+
+- `custom/web/router.py` — Python-модуль
+  Классы: `TranslateRequest`, `EmojiPackRequest`
+  Функции: `create_customization_router`
+- `custom/web/static/`
+- `custom/web/templates/`
+
+#### custom/web/static
+
+- `custom/web/static/app.js` — файл
+- `custom/web/static/style.css` — файл
+
+#### custom/web/templates
+
+- `custom/web/templates/panel.html` — файл
+
 ## docker
 
 - `docker/postgres/`
@@ -3345,6 +3406,7 @@
   Функции: `fixed_datetime` — Возвращает фиксированную отметку времени для воспроизводимых проверок., `registered_paths` — Карта `путь -> {HTTP-методы}` кабинетного роутера, как их реально, `pytest_pyfunc_call` — Позволяет запускать async def тесты без дополнительных плагинов.
 - `tests/contracts/`
 - `tests/crud/`
+- `tests/custom/`
 - `tests/database/`
 - `tests/external/`
 - `tests/fixtures/`
@@ -4074,6 +4136,30 @@
 - `tests/crud/test_yookassa_idempotent.py` — Python-модуль
   Классы: нет
   Функции: `test_returns_existing_without_insert_on_duplicate` — Запись с таким payment_id уже есть → вернуть её, НЕ вставлять повторно., `test_inserts_when_new` — Записи нет → создаём, коммитим, возвращаем новый платёж., `test_idempotent_on_insert_race` — Пре-чек пуст, но коммит упал по дубликату (гонка) → вернуть запись, `test_real_integrity_error_returns_none_and_logs` — Не дубликат (например, настоящая FK по user_id) → None и корректный ERROR.
+
+### tests/custom
+
+- `tests/custom/test_bot_integration.py` — Python-модуль
+  Классы: нет
+  Функции: `test_setup_customization`, `test_try_handle_custom_start_disabled`, `test_try_handle_custom_start_enabled_with_autodetect`, `test_try_handle_custom_notification`
+- `tests/custom/test_custom_web_panel_api.py` — Python-модуль
+  Классы: нет
+  Функции: `test_app`, `client`, `test_get_config`, `test_update_config`, `test_auto_translate_endpoint`, `test_emoji_pack_endpoint`, `test_customization_page_html`
+- `tests/custom/test_customization_models_and_config.py` — Python-модуль
+  Классы: нет
+  Функции: `test_default_customization_config`, `test_button_config_validation`, `test_page_config`, `test_serialization_roundtrip`
+- `tests/custom/test_customization_service.py` — Python-модуль
+  Классы: нет
+  Функции: `temp_customization_file`, `test_service_initialization_with_missing_json`, `test_service_realtime_update`, `test_service_sync_to_file`
+- `tests/custom/test_language_and_translation.py` — Python-модуль
+  Классы: нет
+  Функции: `test_detect_user_language`, `test_auto_translate_text`
+- `tests/custom/test_notifications_customization.py` — Python-модуль
+  Классы: нет
+  Функции: `test_notification_disabled`, `test_notification_customized`, `test_notification_not_configured_falls_back`
+- `tests/custom/test_start_flow_customization.py` — Python-модуль
+  Классы: нет
+  Функции: `test_start_flow_disabled`, `test_start_flow_scenario_default`, `test_start_flow_first_start_tutorial`, `test_start_flow_always_two_messages`
 
 ### tests/database
 

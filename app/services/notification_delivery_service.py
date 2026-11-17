@@ -239,6 +239,11 @@ class NotificationDeliveryService:
             logger.warning('Bot instance not provided for Telegram notification to user', telegram_id=user.telegram_id)
             return False
 
+        from custom.bot_integration import try_handle_custom_notification
+
+        if await try_handle_custom_notification(bot, user, notification_type.value, context, markup):
+            return True
+
         if not message:
             logger.warning(
                 'No Telegram message provided for notification to user',

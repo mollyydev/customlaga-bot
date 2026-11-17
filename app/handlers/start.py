@@ -1641,6 +1641,10 @@ async def cmd_start(message: types.Message, state: FSMContext, db: AsyncSession,
 
         user_subs = getattr(user, 'subscriptions', None) or []
         first_sub = next((s for s in user_subs if s.is_active), user_subs[0] if user_subs else None)
+        from custom.bot_integration import try_handle_custom_start
+        if await try_handle_custom_start(message, state, db, user=user, is_first_time=False):
+            await state.clear()
+            return
         keyboard = await get_main_menu_keyboard_async(
             db=db,
             user=user,
@@ -1770,6 +1774,17 @@ async def cmd_start(message: types.Message, state: FSMContext, db: AsyncSession,
         logger.info('🆕 Новый пользователь, начинаем регистрацию')
 
     data = await state.get_data() or {}
+    from custom.services.customization_service import customization_service
+    if customization_service.is_enabled():
+        _c_cfg = customization_service.get_cached_config()
+        if _c_cfg.auto_detect_language:
+            from custom.services.language_service import detect_user_language
+            detected_lang = detect_user_language(
+                message.from_user.language_code if message.from_user else None,
+                default_lang=_c_cfg.default_language,
+            )
+            data['language'] = detected_lang
+            await state.set_data(data)
     if not data.get('language'):
         if settings.is_language_selection_enabled():
             await _prompt_language_selection(message, state)
@@ -2600,6 +2615,11 @@ async def complete_registration_from_callback(callback: types.CallbackQuery, sta
                 subscription_is_active=subscription_is_active,
             )
 
+        from custom.bot_integration import try_handle_custom_start
+        if await try_handle_custom_start(message, state, db, user=user, is_first_time=True):
+            logger.info('✅ Кастомное меню показано новому пользователю', telegram_id=user.telegram_id)
+            return
+
         try:
             keyboard = await get_main_menu_keyboard_async(
                 db=db,
@@ -2994,6 +3014,11 @@ async def complete_registration(message: types.Message, state: FSMContext, db: A
                 has_active_subscription=has_active_subscription,
                 subscription_is_active=subscription_is_active,
             )
+
+        from custom.bot_integration import try_handle_custom_start
+        if await try_handle_custom_start(message, state, db, user=user, is_first_time=True):
+            logger.info('✅ Кастомное меню показано новому пользователю', telegram_id=user.telegram_id)
+            return
 
         try:
             keyboard = await get_main_menu_keyboard_async(

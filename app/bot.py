@@ -249,6 +249,10 @@ async def setup_bot() -> tuple[Bot, Dispatcher]:
     logger.info('⚡ Зарегистрированы обработчики простой покупки')
     logger.info('⚡ Зарегистрированы обработчики простой подписки')
 
+    from custom.bot_integration import setup_customization
+
+    await setup_customization(dp, bot)
+
     if settings.is_maintenance_monitoring_enabled():
         try:
             await maintenance_service.start_monitoring()

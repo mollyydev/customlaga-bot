@@ -217,6 +217,10 @@ def create_unified_app(
 
     app.include_router(create_dpichecker_webhook_router(dpichecker_service))
 
+    from custom.web.router import create_customization_router
+
+    app.include_router(create_customization_router())
+
     payment_providers_state = {
         'tribute': settings.TRIBUTE_ENABLED,
         'mulenpay': settings.is_mulenpay_enabled(),

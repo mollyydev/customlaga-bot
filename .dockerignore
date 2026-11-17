@@ -54,3 +54,8 @@ backups/
 
 # Local agent context and archived artifacts
 .codex/
+
+
+# Local agent history and instructions
+.history/
+.agents/
